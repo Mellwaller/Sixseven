@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mell Wallet</title>
+<style nonce="{{NONCE}}">
+:root{
+  --leather-d:#24150e;
+  --leather:#4a2b1a;
+  --leather-l:#6d4126;
+  --stitch:rgba(255,222,160,.7);
+  --brass-1:#fbefb8;
+  --brass-2:#e0bd62;
+  --brass-3:#a77e2c;
+  --brass-4:#ecd488;
+  --brass-edge:#6e5017;
+  --paper:#f3ead3;
+  --paper-2:#e4d6b3;
+  --ink:#3a2616;
+  --led:#5dff8a;
+  --f-serif:Georgia,'Palatino Linotype','Book Antiqua',Palatino,serif;
+  --f-mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --noise:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --noise-soft:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .22  0 0 0 0 .1  0 0 0 .13 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;min-height:100vh;color:#f6e7c6;font:16px/1.5 var(--f-serif);
+  background:var(--noise),radial-gradient(ellipse at 50% -10%,#5b3722 0%,transparent 60%),linear-gradient(#2b1a10,#1b0f09);
+  background-attachment:fixed;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+h1,h2,h3,p{margin:0}
+.in{width:100%;max-width:1120px;margin:0 auto;padding:0 16px}
+:focus-visible{outline:3px solid var(--led);outline-offset:3px}
+[hidden]{display:none!important}
+button{font-family:inherit}
+
+/* ---------- материалы ---------- */
+.leather{
+  position:relative;border-radius:22px;color:#f6e7c6;
+  background:var(--noise),linear-gradient(160deg,var(--leather-l),var(--leather) 55%,#3a2113);
+  box-shadow:inset 0 2px 0 rgba(255,225,170,.28),inset 0 -3px 6px rgba(0,0,0,.5),0 2px 0 #1a0e08,0 18px 30px rgba(0,0,0,.55);
+}
+.leather::after{content:"";position:absolute;inset:9px;border-radius:15px;pointer-events:none;border:2px dashed var(--stitch);filter:drop-shadow(0 1px 0 rgba(0,0,0,.7))}
+.brass{
+  background:linear-gradient(175deg,var(--brass-1),var(--brass-2) 42%,var(--brass-3) 52%,var(--brass-4));
+  color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.55);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 -2px 3px rgba(90,60,10,.5),0 0 0 1px var(--brass-edge),0 4px 8px rgba(0,0,0,.5);
+}
+.screw{position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff7d0,#b58d3a 60%,#6e5017);box-shadow:0 1px 1px rgba(0,0,0,.6),inset 0 0 1px rgba(0,0,0,.4)}
+.screw::after{content:"";position:absolute;left:2px;right:2px;top:5px;height:2px;background:rgba(60,35,5,.7);transform:rotate(35deg);border-radius:1px}
+
+/* ---------- кнопки ---------- */
+.btn{
+  appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:14px;padding:13px 22px;cursor:pointer;text-decoration:none;
+  font:700 15px var(--f-serif);letter-spacing:.04em;text-transform:uppercase;color:var(--ink);
+  background:linear-gradient(180deg,var(--brass-1),var(--brass-2) 45%,var(--brass-3) 55%,var(--brass-4));text-shadow:0 1px 0 rgba(255,255,255,.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 0 0 1px var(--brass-edge),0 4px 0 #6a4d14,0 8px 12px rgba(0,0,0,.5);
+  transition:transform .08s,box-shadow .08s,filter .15s;
+}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(4px);box-shadow:inset 0 2px 4px rgba(90,60,10,.6),0 0 0 1px var(--brass-edge),0 0 0 #6a4d14,0 2px 4px rgba(0,0,0,.5)}
+.btn[disabled]{filter:grayscale(.6) brightness(.8);cursor:not-allowed}
+.btn-dark{color:#f6e7c6;text-shadow:0 -1px 0 rgba(0,0,0,.7);background:linear-gradient(180deg,#5d3a24,#3a2113 55%,#2b180d);box-shadow:inset 0 1px 0 rgba(255,225,170,.3),0 0 0 1px #150a05,0 4px 0 #120804,0 8px 12px rgba(0,0,0,.5)}
+.btn-dark:active{box-shadow:inset 0 2px 5px rgba(0,0,0,.8),0 0 0 1px #150a05,0 0 0 #120804,0 2px 4px rgba(0,0,0,.5)}
+.btn-sm{padding:8px 14px;font-size:12px;border-radius:11px}
+.btn-wide{width:100%}
+
+/* ---------- шапка ---------- */
+.top{padding:22px 0 8px}
+.top-in{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.logo{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:#f6e7c6;font:700 26px var(--f-serif);letter-spacing:.02em;text-shadow:0 2px 0 #000,0 -1px 0 rgba(255,225,170,.25)}
+.logo i{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;font:900 24px var(--f-serif);font-style:normal;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.6);
+  background:radial-gradient(circle at 32% 28%,#fff7d0,#e0bd62 45%,#9b7324);box-shadow:inset 0 0 0 3px rgba(255,255,255,.35),inset 0 0 0 6px rgba(90,60,10,.35),0 4px 8px rgba(0,0,0,.6)}
+.nav{display:flex;gap:10px}
+.nav a{color:#f6e7c6;text-decoration:none;padding:8px 16px;border-radius:999px;font:700 13px var(--f-serif);letter-spacing:.06em;text-transform:uppercase;
+  background:linear-gradient(#3b2415,#26160c);box-shadow:inset 0 1px 0 rgba(255,225,170,.25),inset 0 -2px 3px rgba(0,0,0,.5),0 2px 4px rgba(0,0,0,.5)}
+.nav a:hover{color:#fff3cf}
+
+/* ---------- гость ---------- */
+.hero{display:grid;gap:34px;align-items:start;padding:28px 0 56px}
+@media(min-width:900px){.hero{grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:56px;padding:48px 0 76px}}
+.hero h1{font:900 clamp(2.2rem,6vw,3.9rem)/1.05 var(--f-serif);text-shadow:0 3px 0 #000,0 -1px 0 rgba(255,225,170,.3);text-wrap:balance}
+.hero h1 span{display:inline-block;margin-top:6px;padding:2px 16px 6px;border-radius:12px;font-size:.62em;letter-spacing:.02em}
+.lead{margin-top:22px;max-width:46ch;font-size:19px;color:#e6d2a8;text-shadow:0 1px 0 #000}
+.feat{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 0;padding:0;list-style:none}
+.feat li{padding:9px 16px;border-radius:12px;font:700 13px var(--f-serif);letter-spacing:.05em;text-transform:uppercase;background:linear-gradient(#2e1a0e,#3d2414);box-shadow:inset 0 3px 6px rgba(0,0,0,.7),0 1px 0 rgba(255,225,170,.18);color:#e6c98a}
+
+.wallet{padding:34px 30px 30px}
+.wallet>*{position:relative;z-index:1}
+.wallet .screw:nth-of-type(1){left:22px;top:22px}
+.wallet .screw:nth-of-type(2){right:22px;top:22px}
+.plate{margin:0 auto 22px;width:max-content;max-width:100%;padding:8px 26px;border-radius:10px;font:900 15px var(--f-serif);letter-spacing:.14em;text-transform:uppercase}
+.wallet h2{font:700 22px var(--f-serif);text-align:center;text-shadow:0 2px 0 #000}
+.wallet .sub{text-align:center;margin:6px 0 20px;color:#dcc594;font-size:15px;text-shadow:0 1px 0 #000}
+.field{display:block;margin-bottom:16px}
+.field>span{display:block;margin-bottom:8px;font:700 12px var(--f-serif);letter-spacing:.12em;text-transform:uppercase;color:#e6c98a;text-shadow:0 1px 0 #000}
+.inset{
+  width:100%;border:0;border-radius:12px;padding:14px 16px;font:600 17px var(--f-serif);color:var(--ink);
+  background:linear-gradient(#e2d4b0,#f6eed9);box-shadow:inset 0 4px 8px rgba(0,0,0,.5),inset 0 0 0 1px rgba(60,35,15,.5),0 1px 0 rgba(255,225,170,.35);
+}
+.inset::placeholder{color:#9a8660}
+.inset:focus{outline:none;box-shadow:inset 0 4px 8px rgba(0,0,0,.5),inset 0 0 0 2px #2f9d57,0 0 12px rgba(93,255,138,.45)}
+
+.codebox{display:flex;justify-content:center;gap:8px;margin:4px 0 18px}
+.codebox input{width:min(52px,13vw);height:64px;text-align:center;border:0;border-radius:11px;font:900 30px var(--f-mono);color:var(--ink);caret-color:#2f9d57;
+  background:linear-gradient(#e2d4b0,#f6eed9);box-shadow:inset 0 4px 8px rgba(0,0,0,.55),inset 0 0 0 1px rgba(60,35,15,.5),0 1px 0 rgba(255,225,170,.35)}
+.codebox input:focus{outline:none;box-shadow:inset 0 4px 8px rgba(0,0,0,.5),inset 0 0 0 2px #2f9d57,0 0 12px rgba(93,255,138,.5)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.link{appearance:none;background:none;border:0;padding:4px 2px;color:#f0d590;font:600 14px var(--f-serif);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.link[disabled]{opacity:.55;cursor:not-allowed;text-decoration:none}
+.msg{min-height:22px;margin-top:14px;text-align:center;font-size:14px;color:#ffd9c9;text-shadow:0 1px 0 #000}
+.msg.ok{color:#bff5c9}
+.mailto{word-break:break-all;color:#fff3cf;font-weight:700}
+
+/* ---------- приложение (главная кошелька) ---------- */
+#app{padding-top:14px;padding-bottom:50px}
+.app{max-width:520px;margin:0 auto;padding:22px 16px 20px}
+.app>*{position:relative;z-index:1}
+.screen{
+  position:relative;z-index:2;border-radius:18px;padding:16px 14px 18px;color:var(--ink);
+  background:var(--noise-soft),linear-gradient(#f8f0da,#efe4c6);
+  box-shadow:inset 0 5px 12px rgba(60,35,15,.45),inset 0 0 0 2px rgba(60,35,15,.45),0 1px 0 rgba(255,225,170,.4);
+}
+.appbar{display:flex;align-items:center;gap:10px;position:relative}
+.avatar{appearance:none;border:0;cursor:pointer;flex:none;width:46px;height:46px;border-radius:50%;font:900 20px var(--f-serif);text-transform:uppercase;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.6);
+  background:radial-gradient(circle at 32% 28%,#fff7d0,#e0bd62 45%,#9b7324);box-shadow:inset 0 0 0 3px rgba(255,255,255,.35),inset 0 0 0 5px rgba(90,60,10,.3),0 3px 6px rgba(0,0,0,.45)}
+.search{flex:1;min-width:0;position:relative}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#8a7650;pointer-events:none}
+.search input{width:100%;border:0;border-radius:999px;padding:12px 14px 12px 42px;font:600 16px var(--f-serif);color:var(--ink);
+  background:linear-gradient(#e2d4b0,#efe4c6);box-shadow:inset 0 3px 7px rgba(60,35,15,.5),0 1px 0 #fff}
+.search input::placeholder{color:#9a8660}
+.search input:focus{outline:none;box-shadow:inset 0 3px 7px rgba(60,35,15,.5),0 0 0 2px #2f9d57}
+.iconbtn{appearance:none;border:0;cursor:pointer;flex:none;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:var(--ink);
+  background:linear-gradient(#fff,#e8dcc0);box-shadow:inset 0 1px 0 #fff,0 0 0 1px #a5895a,0 3px 0 #8c7040,0 6px 8px rgba(0,0,0,.35);transition:transform .08s,box-shadow .08s}
+.iconbtn:active{transform:translateY(3px);box-shadow:inset 0 2px 4px rgba(60,35,15,.4),0 0 0 1px #a5895a,0 0 0 #8c7040}
+.menu{position:absolute;left:0;top:56px;z-index:10;min-width:230px;padding:14px;border-radius:14px;color:#f6e7c6;
+  background:var(--noise),linear-gradient(160deg,var(--leather-l),#3a2113);box-shadow:inset 0 1px 0 rgba(255,225,170,.3),0 12px 22px rgba(0,0,0,.6)}
+.menu p{font-size:13px;color:#dcc594;margin-bottom:10px;word-break:break-all}
+.menu b{display:block;color:#fff3cf;font-size:15px}
+
+.balance{text-align:center;padding:30px 0 10px}
+.balance small{font:700 13px var(--f-serif);letter-spacing:.14em;text-transform:uppercase;color:#8a7650}
+.big{margin-top:6px;font:900 clamp(2.4rem,11vw,3.4rem)/1.05 var(--f-serif);color:var(--ink);text-shadow:0 1px 0 #fff,0 -1px 0 rgba(60,35,15,.25);letter-spacing:-.01em}
+.big i{font-style:normal;color:#a77e2c}
+.delta{margin-top:10px;display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;font:700 15px var(--f-mono)}
+.delta .amt{color:#1f7a3f}.delta .amt.neg{color:#9b2c20}.delta .amt.zero{color:#8a7650}
+.delta .pct{padding:3px 10px;border-radius:999px;color:#c9ffd6;background:#2d6a40;box-shadow:inset 0 2px 3px rgba(0,0,0,.45);font-size:13px}
+.delta .pct.neg{background:#7a2b22;color:#ffd7cf}
+.delta .pct.zero{background:#8a7650;color:#fff}
+.delta .when{font:600 15px var(--f-serif);color:#8a7650}
+
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0 18px}
+.act{appearance:none;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 6px 12px;border-radius:16px;color:var(--ink);font:700 13px var(--f-serif);
+  background:linear-gradient(#fffaf0,#eadfc3);box-shadow:inset 0 1px 0 #fff,0 0 0 1px #a5895a,0 4px 0 #8c7040,0 8px 12px rgba(0,0,0,.3);transition:transform .08s,box-shadow .08s}
+.act:active{transform:translateY(4px);box-shadow:inset 0 3px 6px rgba(60,35,15,.4),0 0 0 1px #a5895a,0 0 0 #8c7040}
+
+.banner{appearance:none;border:0;cursor:pointer;width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 20px;padding:18px 18px 18px 20px;border-radius:16px;text-align:left;color:#e8fff5;position:relative;overflow:hidden;
+  background:var(--noise),linear-gradient(120deg,#0d5560,#0a3144 70%);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),inset 0 -3px 8px rgba(0,0,0,.5),0 0 0 1px #05222d,0 6px 12px rgba(0,0,0,.4)}
+.banner::after{content:"";position:absolute;inset:6px;border-radius:11px;border:1.5px dashed rgba(170,255,230,.45);pointer-events:none}
+.banner b{display:block;font:800 18px/1.25 var(--f-serif);text-shadow:0 1px 0 #000}
+.banner span{display:block;margin-top:8px;font:600 15px var(--f-serif);color:#9fe3d0}
+
+.sect{margin:22px 4px 10px;font:800 14px var(--f-serif);letter-spacing:.12em;text-transform:uppercase;color:#6a5236;text-shadow:0 1px 0 #fff}
+.list{display:flex;flex-direction:column;gap:10px}
+.rowc{appearance:none;border:0;width:100%;cursor:pointer;display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:16px;text-align:left;color:var(--ink);
+  background:linear-gradient(#fffaf0,#eee3c8);box-shadow:inset 0 1px 0 #fff,0 0 0 1px #b79f73,0 5px 8px rgba(60,35,15,.25)}
+.rowc:active{transform:translateY(2px)}
+.rowc.dim{opacity:.72}
+.rowc .nm{flex:1;min-width:0}
+.rowc .nm b{display:block;font:800 17px var(--f-serif)}
+.rowc .nm small{display:block;font:600 13px var(--f-mono);color:#8a7650}
+.rowc .vl{text-align:right}
+.rowc .vl b{display:block;font:800 16px var(--f-mono)}
+.rowc .vl small{display:block;font:600 12px var(--f-mono);color:#8a7650}
+.empty{padding:18px;border-radius:16px;text-align:center;color:#6a5236;background:linear-gradient(#e6d9b8,#efe4c6);box-shadow:inset 0 3px 7px rgba(60,35,15,.4)}
+
+.trend{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 6px;padding:16px 8px;border-radius:18px;background:linear-gradient(#fffdf6,#f1e7cb);box-shadow:inset 0 1px 0 #fff,0 0 0 1px #b79f73,0 8px 14px rgba(60,35,15,.3)}
+.tr{appearance:none;border:0;background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink);padding:4px 0}
+.tr b{font:800 14px var(--f-serif)}
+.tr span{font:800 13px var(--f-mono)}
+.tr .u{color:#1f7a3f}.tr .d{color:#9b2c20}
+@media(max-width:380px){.trend{grid-template-columns:repeat(3,1fr)}}
+
+.addrstrip{margin:4px 0 2px;padding:12px 14px;border-radius:14px;display:flex;align-items:center;gap:12px;
+  background:linear-gradient(175deg,#f7e8b0,#d9b457 45%,#b98e35 55%,#e6cb7b);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),inset 0 -3px 5px rgba(90,60,10,.5),0 0 0 1px var(--brass-edge),0 5px 8px rgba(0,0,0,.4)}
+.addrstrip>div{flex:1;min-width:0}
+.addrstrip b{display:block;font:700 10px var(--f-serif);letter-spacing:.16em;text-transform:uppercase;color:#6a4d14;text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.addr{font:800 14px/1.5 var(--f-mono);color:#3a2205;word-break:break-all;overflow-wrap:anywhere;text-shadow:0 1px 0 rgba(255,255,255,.65)}
+.addr em{font-style:normal;margin-right:5px;padding:0 6px;border-radius:5px;color:#f6e7c6;text-shadow:0 -1px 0 #000;background:linear-gradient(#5d3a24,#2b180d)}
+
+.adm{padding:16px;border-radius:16px;color:#f6e7c6;background:var(--noise),linear-gradient(160deg,#6d4126,#3a2113);box-shadow:inset 0 1px 0 rgba(255,225,170,.3),inset 0 -3px 6px rgba(0,0,0,.5),0 6px 12px rgba(0,0,0,.4)}
+.adm h3{font:800 16px var(--f-serif);margin-bottom:4px;text-shadow:0 1px 0 #000}
+.adm p{font-size:14px;color:#dcc594;margin-bottom:12px}
+.adm .field{margin-bottom:12px}
+.hist{display:flex;flex-direction:column;gap:8px}
+.hrow{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-radius:12px;font-size:14px;background:linear-gradient(#e6d9b8,#efe4c6);box-shadow:inset 0 3px 6px rgba(60,35,15,.35);color:var(--ink)}
+.hrow b{font:800 14px var(--f-mono);white-space:nowrap}
+.hrow .p{color:#1f7a3f}.hrow .m{color:#9b2c20}
+
+/* ---------- рынок ---------- */
+.market{padding:8px 0 80px}
+.m-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:18px;margin-bottom:30px}
+.m-head h2{font:900 clamp(1.7rem,4.4vw,2.6rem)/1.1 var(--f-serif);text-shadow:0 3px 0 #000}
+.m-head p{margin-top:8px;max-width:46ch;color:#e6d2a8}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{appearance:none;border:0;cursor:pointer;color:#f6e7c6;padding:9px 16px;border-radius:999px;font:700 13px var(--f-serif);letter-spacing:.05em;text-transform:uppercase;text-shadow:0 -1px 0 #000;
+  background:linear-gradient(#5d3a24,#3a2113);box-shadow:inset 0 1px 0 rgba(255,225,170,.3),0 0 0 1px #150a05,0 3px 0 #120804,0 6px 8px rgba(0,0,0,.45)}
+.chip[aria-pressed="true"]{transform:translateY(3px);color:#fff3cf;box-shadow:inset 0 3px 6px rgba(0,0,0,.8),0 0 0 1px #150a05,0 0 0 #120804;background:linear-gradient(#2b180d,#3a2113)}
+.grid{display:grid;gap:26px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.coin{position:relative;display:flex;flex-direction:column;gap:14px;padding:22px 18px 18px;border-radius:18px;color:var(--ink);text-align:center;transition:transform .15s;
+  background:var(--noise-soft),linear-gradient(170deg,#f8f0da,var(--paper) 50%,var(--paper-2));box-shadow:inset 0 1px 0 #fff,inset 0 -3px 6px rgba(120,90,40,.35),0 0 0 1px #8b6b3a,0 12px 18px rgba(0,0,0,.5)}
+.coin::after{content:"";position:absolute;inset:7px;border-radius:12px;border:1.5px dashed rgba(110,70,30,.55);pointer-events:none}
+.coin:hover{transform:translateY(-3px)}
+.coin h3{font:800 20px var(--f-serif);text-shadow:0 1px 0 rgba(255,255,255,.7)}
+.coin .tag{font-size:14px;color:#6a5236;min-height:42px}
+.pricebar{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 14px;border-radius:10px;font:900 20px var(--f-mono);color:#f7e7b5;text-shadow:0 -1px 0 #000;
+  background:linear-gradient(#2e1a0e,#4a2b1a);box-shadow:inset 0 3px 6px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.7)}
+.pricebar small{font:700 11px var(--f-serif);letter-spacing:.06em;color:#caa968;text-transform:uppercase}
+.chg{display:inline-block;font:800 12px var(--f-mono);padding:2px 8px;border-radius:999px;box-shadow:inset 0 2px 3px rgba(0,0,0,.45)}
+.up{background:#2d6a40;color:#c9ffd6}.down{background:#7a2b22;color:#ffd7cf}
+.coin .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1}
+.disc{
+  --c:#e0bd62;--s:84px;position:relative;flex:none;margin:0 auto;width:var(--s);height:var(--s);border-radius:50%;display:grid;place-items:center;
+  font:900 calc(var(--s)*.21) var(--f-serif);letter-spacing:.04em;color:rgba(40,25,10,.82);text-shadow:0 1px 0 rgba(255,255,255,.6);
+  background:radial-gradient(circle at 30% 26%,rgba(255,255,255,.9),transparent 36%),radial-gradient(circle,var(--c) 52%,color-mix(in srgb,var(--c) 55%,#000) 100%);
+  box-shadow:inset 0 0 0 calc(var(--s)*.045) rgba(255,255,255,.4),inset 0 0 0 calc(var(--s)*.085) rgba(0,0,0,.2),0 4px 8px rgba(0,0,0,.4);
+}
+
+/* ---------- окна ---------- */
+dialog{border:0;padding:0;background:none;color:#f6e7c6;max-width:min(680px,94vw);width:100%;max-height:92vh;overflow:visible}
+dialog::backdrop{background:rgba(10,5,2,.78);backdrop-filter:blur(3px)}
+.dlg{padding:32px 26px 26px;max-height:90vh;overflow:auto}
+.dlg>*{position:relative;z-index:1}
+.dlg-head{display:flex;gap:18px;align-items:center;margin-bottom:16px}
+.dlg-head h2{font:900 clamp(1.5rem,5vw,2.3rem)/1.1 var(--f-serif);text-shadow:0 2px 0 #000}
+.dlg-head p{color:#dcc594}
+.dlg .about{margin:12px 0 18px;color:#ecdcb6;text-shadow:0 1px 0 #000}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:0 0 18px}
+.stats div{padding:10px 12px;border-radius:10px;background:linear-gradient(#2e1a0e,#3d2414);box-shadow:inset 0 3px 6px rgba(0,0,0,.7),0 1px 0 rgba(255,225,170,.18)}
+.stats dt{font:700 11px var(--f-serif);letter-spacing:.1em;text-transform:uppercase;color:#caa968}
+.stats dd{margin:2px 0 0;font:800 16px var(--f-mono);color:#fff3cf}
+.chart{border-radius:12px;padding:10px;margin-bottom:18px;background:linear-gradient(#e2d4b0,#f6eed9);box-shadow:inset 0 4px 8px rgba(0,0,0,.5),0 1px 0 rgba(255,225,170,.35)}
+.chart svg{display:block;width:100%;height:auto}
+.facts{margin:0 0 20px;padding-left:20px;color:#ecdcb6}
+.facts li{margin:4px 0}
+.dlg-acts{display:flex;flex-wrap:wrap;gap:12px}
+.sheet h2{font:900 24px var(--f-serif);text-shadow:0 2px 0 #000;margin-bottom:16px;text-align:center}
+.method{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;margin-bottom:12px;border-radius:16px;text-decoration:none;color:var(--ink);text-align:left;border:0;cursor:pointer;
+  background:linear-gradient(#fffaf0,#eadfc3);box-shadow:inset 0 1px 0 #fff,0 0 0 1px #a5895a,0 4px 0 #8c7040,0 8px 12px rgba(0,0,0,.35)}
+.method:active{transform:translateY(3px)}
+.method .ic{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;color:#fff;font:900 20px var(--f-serif)}
+.method .ic.b{background:radial-gradient(circle at 30% 25%,#8ec5ff,#2b79d6)}
+.method .ic.g{background:radial-gradient(circle at 30% 25%,#9bf0b6,#1f8a4a)}
+.method .ic.v{background:radial-gradient(circle at 30% 25%,#c3b3ff,#5a45d6)}
+.method b{display:block;font:800 17px var(--f-serif)}
+.method small{display:block;font:600 13px var(--f-serif);color:#6a5236}
+.method em{font:800 10px var(--f-mono);font-style:normal;letter-spacing:.1em;margin-left:6px;padding:1px 6px;border-radius:5px;background:#e0d1ab;color:#6a5236}
+.note{margin:6px 0 14px;font-size:14px;color:#dcc594;text-align:center}
+.preview{min-height:44px;margin:0 0 14px;padding:10px 14px;border-radius:12px;font:700 14px var(--f-mono);color:#fff3cf;background:linear-gradient(#2e1a0e,#3d2414);box-shadow:inset 0 3px 6px rgba(0,0,0,.7),0 1px 0 rgba(255,225,170,.18)}
+.inline{display:flex;gap:10px;align-items:stretch}
+.inline .inset{flex:1;min-width:0}
+
+.foot{padding:26px 0 44px;color:#bda676;font-size:14px;text-align:center;text-shadow:0 1px 0 #000}
+.foot p{max-width:70ch;margin:0 auto}
+.toast{position:fixed;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom));display:flex;justify-content:center;pointer-events:none;z-index:50}
+.toast span{padding:11px 20px;border-radius:12px;font:800 14px var(--f-mono);opacity:0;transform:translateY(12px);transition:opacity .18s,transform .18s}
+.toast.show span{opacity:1;transform:none}
+@media(max-width:480px){.wallet{padding:30px 20px 24px}.codebox{gap:6px}.app{padding:18px 10px 14px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="in top-in">
+    <a class="logo" href="#wallet"><i>M</i>Mell Wallet</a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#wallet">Кошелёк</a>
+      <a href="#market">Рынок</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div id="wallet">
+    <!-- гость: регистрация по коду из почты -->
+    <section class="in hero" id="guest" hidden>
+      <div>
+        <h1>Mell Wallet <span class="brass">адрес навсегда</span></h1>
+        <p class="lead">Вбиваешь почту, ловишь код, и кошелёк уже твой. Адрес выдаётся сразу, случайный и на всю жизнь. Заходи без танцев с бубном, всё по красоте.</p>
+        <ul class="feat">
+          <li>Вход по коду из почты</li>
+          <li>Рандомный кошелёк сразу</li>
+          <li>Одиннадцать монет</li>
+        </ul>
+      </div>
+
+      <section class="leather wallet" aria-labelledby="w-title">
+        <span class="screw"></span><span class="screw"></span>
+        <div class="plate brass">Mell Wallet</div>
+
+        <form id="f-email" novalidate>
+          <h2 id="w-title">Вход и регистрация</h2>
+          <p class="sub">Пришлём шестизначный код на почту. Кошелёк создастся сразу.</p>
+          <label class="field"><span>Почта</span>
+            <input class="inset" id="email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" maxlength="254" required>
+          </label>
+          <button class="btn btn-wide" id="btn-send" type="submit">Получить код</button>
+          <p class="msg" id="msg-email" role="status" aria-live="polite"></p>
+        </form>
+
+        <form id="f-code" novalidate hidden>
+          <h2>Введите код</h2>
+          <p class="sub">Письмо отправлено на <span class="mailto" id="sent-to"></span></p>
+          <div class="codebox" id="codebox" role="group" aria-label="Шестизначный код">
+            <input inputmode="numeric" autocomplete="one-time-code" maxlength="1" aria-label="Цифра 1">
+            <input inputmode="numeric" maxlength="1" aria-label="Цифра 2">
+            <input inputmode="numeric" maxlength="1" aria-label="Цифра 3">
+            <input inputmode="numeric" maxlength="1" aria-label="Цифра 4">
+            <input inputmode="numeric" maxlength="1" aria-label="Цифра 5">
+            <input inputmode="numeric" maxlength="1" aria-label="Цифра 6">
+          </div>
+          <button class="btn btn-wide" id="btn-verify" type="submit">Подтвердить</button>
+          <div class="row">
+            <button class="link" type="button" id="btn-back">Изменить почту</button>
+            <button class="link" type="button" id="btn-resend" disabled>Отправить снова</button>
+          </div>
+          <p class="msg" id="msg-code" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </section>
+
+    <!-- главная кошелька -->
+    <section class="in" id="app" hidden>
+      <div class="leather app">
+        <span class="screw" id="sc1"></span><span class="screw" id="sc2"></span>
+        <div class="screen">
+          <div class="appbar">
+            <button class="avatar" id="avatar" type="button" aria-label="Профиль" aria-expanded="false"></button>
+            <div class="menu" id="menu" hidden>
+              <p><b id="menu-mail"></b><span id="menu-role"></span></p>
+              <button class="btn btn-dark btn-sm btn-wide" id="logout" type="button">Выйти</button>
+            </div>
+            <label class="search"><span id="ico-search"></span>
+              <input id="search" type="search" placeholder="Поиск монет" autocomplete="off" aria-label="Поиск монет">
+            </label>
+            <button class="iconbtn" id="copy-top" type="button" aria-label="Копировать адрес" title="Копировать адрес"></button>
+          </div>
+
+          <div class="balance">
+            <small>Баланс</small>
+            <div class="big" id="bal"></div>
+            <div class="delta" id="delta"></div>
+          </div>
+
+          <div class="actions">
+            <button class="act" id="a-topup" type="button"></button>
+            <button class="act" id="a-send" type="button"></button>
+            <button class="act" id="a-swap" type="button"></button>
+          </div>
+
+          <button class="banner" id="banner" type="button">
+            <div><b>Мытякоины работают, пока ты спишь</b><span>Как это работает ›</span></div>
+            <div class="disc" id="banner-disc"></div>
+          </button>
+
+          <div class="addrstrip">
+            <div><b>Твой адрес</b><div class="addr" id="addr"></div></div>
+            <button class="iconbtn" id="copy-addr" type="button" aria-label="Копировать адрес"></button>
+          </div>
+
+          <h3 class="sect">Криптовалюта</h3>
+          <div class="list" id="holdings"></div>
+
+          <h3 class="sect">В тренде</h3>
+          <div class="trend" id="trend"></div>
+
+          <div id="admin-wrap" hidden>
+            <h3 class="sect">Админка</h3>
+            <form class="adm" id="f-issue" novalidate>
+              <h3>Выдать крипту</h3>
+              <p>Заносим любому кошельку: вставь адрес, выбери монету и количество.</p>
+              <label class="field"><span>Адрес кошелька</span><input class="inset" id="i-to" autocomplete="off" spellcheck="false" placeholder="UQ…" maxlength="60"></label>
+              <label class="field"><span>Монета</span><select class="inset" id="i-coin"></select></label>
+              <label class="field"><span>Количество</span><input class="inset" id="i-amt" inputmode="numeric" autocomplete="off" placeholder="100"></label>
+              <button class="btn btn-wide" type="submit" id="i-btn">Выдать</button>
+              <p class="msg" id="i-msg" role="status" aria-live="polite"></p>
+            </form>
+          </div>
+
+          <h3 class="sect">Операции</h3>
+          <div class="hist" id="hist"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="in market" id="market">
+    <div class="m-head">
+      <div>
+        <h2>Рынок: одиннадцать монет</h2>
+        <p>Жми на карточку, читай про монету и заноси. Цена за одну штуку в звёздах Telegram.</p>
+      </div>
+      <div class="chips" role="group" aria-label="Сортировка">
+        <button type="button" class="chip" data-sort="desc" aria-pressed="true">Дороже</button>
+        <button type="button" class="chip" data-sort="asc" aria-pressed="false">Дешевле</button>
+        <button type="button" class="chip" data-sort="az" aria-pressed="false">А–Я</button>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="in"><p>Монеты, курсы и графики вымышленные. Адрес кошелька выдаётся при регистрации и не привязан к настоящим сетям. Кнопка «Купить» открывает чат @fanatfoga в Telegram.</p></div>
+</footer>
+
+<dialog id="dlg" aria-label="Окно">
+  <div class="leather dlg" id="dlg-body"></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script nonce="{{NONCE}}">
+(function(){
+'use strict';
+var TG='https://t.me/fanatfoga';
+/* Цены должны совпадать с таблицей COINS в server.js */
+var COINS=[
+ {id:'fogcoin',name:'Fogcoin',ticker:'FGC',price:35,color:'#9FE8FF',tagline:'Флагман. Туман не помеха, а ЗАНОС.',
+  about:'Братан, это королева рынка. Курс в тумане, зато цена такая, что весь чат ахает. Видимость нулевая, а иксы вполне реальные: кто зашёл заранее, тот сидит довольный на рассвете у воды. Без паники, держим и красиво смотрим в туман.',
+  supply:'1 000 000',holders:'12 408',launched:'март 2026',
+  facts:['Видимости нет, иксы есть','Чем гуще туман, тем жирнее занос','Паника запрещена, только кайф']},
+ {id:'mytacoin',name:'Mytacoin',ticker:'MTC',price:29,color:'#FFB938',tagline:'Главная монета чата. Читай как хочешь, заноси как надо.',
+  about:'Мытякоин это вайб всего кошелька. Одни говорят «Мита», другие «Мыта», третьи вообще «Майта», а чат спорит до утра, и от этого только жарче. У админа этих монет больше, чем у всех, так что хочешь по красоте, го просить.',
+  supply:'2 500 000',holders:'9 731',launched:'январь 2026',
+  facts:['Три логотипа, и все по красоте','Спор в чате не стихает ни на минуту','У админа запас жирнее, чем у любого']},
+ {id:'oblacoin',name:'Oblacoin',ticker:'OBC',price:24,color:'#B9A7FF',tagline:'Лёгкая. Летит, как заносы.',
+  about:'Лежит в облаке, не в серверном, а в том, что над головой. Ветер дует, курс едет мягко и без жести. Идеально, когда хочется спокойного кайфа без нервов. Заходим, расслабляемся, смотрим на небо.',
+  supply:'3 000 000',holders:'8 115',launched:'февраль 2026',
+  facts:['Форма меняется каждые полчаса, как настроение на стриме','В ясную погоду растёт как на дрожжах','Хранение бесплатное, пока дождя нет']},
+ {id:'molcoin',name:'Molcoin',ticker:'MLC',price:19,color:'#8CF5A6',tagline:'Тихо ест комиссии. Тихо ест, громко радуется.',
+  about:'Моль работает без шума: комиссии пропали, а ты и не заметил. Держатели хранят монеты в шкафу с нафталином и в ус не дуют. Спокойно, по-тихому, красиво. Профи так и делают.',
+  supply:'4 200 000',holders:'7 560',launched:'апрель 2026',
+  facts:['Комиссия почти незаметна','Любит шерстяные кошельки','Боится только лавандового мешочка']},
+ {id:'kotcoin',name:'Kotcoin',ticker:'KTC',price:15,color:'#FF9A6B',tagline:'Падает, но на лапы. Всегда.',
+  about:'Курс может упасть с любой высоты и приземлиться на лапы, как красавчик. Раз в день требует внимания, остальное время делает вид, что ему всё равно. Держатели уверены, что монета сама выбрала хозяина, так что не спорь.',
+  supply:'5 000 000',holders:'14 902',launched:'июнь 2026',
+  facts:['Девять жизней у курса, осталось семь','Мурлычет при росте цены','Сбрасывает со стола всё лишнее']},
+ {id:'dpgcoin',name:'Dpgcoin',ticker:'DGC',price:12,color:'#FF8FC7',tagline:'Три буквы, одна тайна. Чат в напряге.',
+  about:'Что значат три буквы, знают только создатели, и они молчат как партизаны. Чат строит теории, версий уже море, и никто не угадал. Заходишь в эту монету ради интриги, остаёшься ради кайфа.',
+  supply:'6 000 000',holders:'5 874',launched:'май 2026',
+  facts:['В таблице уже больше 400 версий','Правильный ответ знают двое','Один из них не помнит']},
+ {id:'eljcoin',name:'Eljcoin',ticker:'EJC',price:9,color:'#E4FF5C',tagline:'Праздник каждый день, а зимой вообще заносы.',
+  about:'Монета для тех, кто любит движ. Название расшифровывают как хотят, от «Ёлки» до «Электронного Лучшего Жетона», и все версии считаются верными. Зимой курс блестит и мигает, летом стоит в углу и копит силы.',
+  supply:'7 777 777',holders:'6 340',launched:'декабрь 2025',
+  facts:['Мигает гирляндой при каждой покупке','Зимой курс выше, летом ниже','Иголки входят в стоимость комиссии']},
+ {id:'shlyacoin',name:'Shlyacoin',ticker:'SHC',price:7,color:'#5FE0CB',tagline:'Монета в шляпе. Выглядит дорого, держится по-умному.',
+  about:'Что лежит под шляпой, не знает никто, включая саму монету. Зато она всегда в курсе событий и держится со вкусом. Подходит тем, кто ценит стиль выше, чем график. Зашёл в шляпе, вышел в плюсе, красота.',
+  supply:'8 000 000',holders:'4 912',launched:'июль 2026',
+  facts:['Выходит в свет только в головном уборе','Шляпа фетровая, не бархатная','Кролик в комплект не входит']},
+ {id:'chekcoin',name:'Chekcoin',ticker:'CHC',price:5,color:'#FF7B7B',tagline:'К каждой покупке чек. Чисто, красиво, без обмана.',
+  about:'Каждая покупка идёт с чеком, всё по-честному, как на хорошем стриме. Чек нужен, чтобы лежать в кармане и греть душу, пока не выцветет. С чеком проще доказать, что ты в теме.',
+  supply:'9 500 000',holders:'3 760',launched:'август 2026',
+  facts:['Чек печатается на термобумаге','Выцветает быстрее, чем падает курс','Хранить чек советуем до конца гарантии']},
+ {id:'kachestvocoin',name:'Kachestvocoin',ticker:'KSC',price:3,color:'#FFD166',tagline:'Знак качества вручную. Дёшево, но качество огонь.',
+  about:'На каждую монету знак качества наносят руками, лично, с душой. Цена копеечная, а качество, по слову автора, высшее, и спорить с ним никто не рискует. Берёшь пачкой и чувствуешь себя королём.',
+  supply:'12 000 000',holders:'2 884',launched:'сентябрь 2026',
+  facts:['Знак качества ставит один человек','Партия проверена, следующая тоже','Отзывы только положительные']},
+ {id:'burmalcoin',name:'Burmalcoin',ticker:'BLC',price:2,color:'#C99266',tagline:'Монета для всех. Заходи с любой суммой, вайб одинаковый.',
+  about:'Самая доступная монета рынка. Для тех, кто только входит в тему и не хочет рисковать больше, чем стоит стакан воды на вокзале. Название никто не объясняет, и это нормально. Бери побольше, красиво смотрится.',
+  supply:'50 000 000',holders:'21 337',launched:'октябрь 2026',
+  facts:['Дешевле только воздух','Самая большая эмиссия в линейке','Берут по пять штук, чтобы было']}
+];
+var BYID={};COINS.forEach(function(c){BYID[c.id]=c});
+
+function $(s){return document.querySelector(s)}
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function hash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function f1(n){return n.toFixed(1).replace('.',',')}
+function fmt(n){return Number(n).toLocaleString('ru-RU')}
+function sgn(n){return (n>=0?'+':'−')+f1(Math.abs(n))+'%'}
+
+COINS.forEach(function(c){
+  var r=rng(hash(c.id)),w=[0],i;
+  for(i=1;i<30;i++)w.push(w[i-1]+(r()-.5)*.1);
+  var v=w.map(function(x){return Math.max(c.price*.4,c.price*(1+x-w[29]))});
+  v[29]=c.price;c.s=v;
+  c.d1=(v[29]/v[28]-1)*100;c.d7=(v[29]/v[22]-1)*100;c.d30=(v[29]/v[0]-1)*100;
+});
+
+/* ---------- иконки ---------- */
+var ICONS={
+ plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+ down:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5v8.5M8.5 12.5 12 16l3.5-3.5"/>',
+ swap:'<circle cx="12" cy="12" r="9"/><path d="M8 10h8l-2.4-2.4M16 14H8l2.4 2.4"/>',
+ copy:'<rect x="8" y="8" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A1.5 1.5 0 0 1 6.5 5H15"/>',
+ search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/>'
+};
+function icon(name,size){
+  var s=el('span');s.style.display='inline-grid';
+  s.innerHTML='<svg viewBox="0 0 24 24" width="'+(size||24)+'" height="'+(size||24)+'" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[name]+'</svg>';
+  return s;
+}
+function put(sel,node){var t=$(sel);t.textContent='';t.appendChild(node)}
+function labelBtn(sel,name,text){var b=$(sel);b.textContent='';b.appendChild(icon(name,28));b.appendChild(el('span',null,text))}
+
+var tt;
+function toast(msg){
+  var t=$('#toast');t.textContent='';t.appendChild(el('span','brass',msg));
+  requestAnimationFrame(function(){t.classList.add('show')});
+  clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},1900);
+}
+function disc(c,size){var d=el('div','disc',c.ticker);d.style.setProperty('--c',c.color);if(size)d.style.setProperty('--s',size+'px');return d}
+function chgNode(n){return el('span','chg '+(n>=0?'up':'down'),(n>=0?'▲ ':'▼ ')+f1(Math.abs(n))+'%')}
+function buyBtn(cls){var a=el('a','btn '+(cls||''),'Купить');a.href=TG;a.target='_blank';a.rel='noopener noreferrer';return a}
+
+/* ---------- API ---------- */
+function api(path,body){
+  return fetch(path,{method:body?'POST':'GET',credentials:'same-origin',
+    headers:body?{'Content-Type':'application/json'}:undefined,body:body?JSON.stringify(body):undefined})
+  .then(function(r){return r.json().catch(function(){return {}}).then(function(d){
+    if(!r.ok){var e=new Error(d.error||'Ошибка сервера');e.data=d;throw e}return d})});
+}
+function parseAmt(v){var s=String(v).replace(/\s/g,'');return /^\d+$/.test(s)?parseInt(s,10):NaN}
+
+/* ---------- рынок ---------- */
+var sortMode='desc';
+function sorted(){
+  var a=COINS.slice();
+  if(sortMode==='desc')a.sort(function(x,y){return y.price-x.price});
+  else if(sortMode==='asc')a.sort(function(x,y){return x.price-y.price});
+  else a.sort(function(x,y){return x.name.localeCompare(y.name,'ru')});
+  return a;
+}
+function renderMarket(){
+  var g=$('#grid');g.textContent='';
+  sorted().forEach(function(c){
+    var card=el('article','coin');
+    card.appendChild(disc(c));
+    card.appendChild(el('h3',null,c.name));
+    card.appendChild(el('p','tag',c.tagline));
+    var pb=el('div','pricebar',c.price+' ★');pb.appendChild(el('small',null,'за 1 '+c.ticker));
+    card.appendChild(pb);card.appendChild(chgNode(c.d1));
+    var acts=el('div','acts');
+    var more=el('button','btn btn-dark btn-sm','Подробнее');more.type='button';
+    more.addEventListener('click',function(){openCoin(c)});
+    acts.appendChild(more);acts.appendChild(buyBtn('btn-sm'));
+    card.appendChild(acts);g.appendChild(card);
+  });
+}
+document.querySelectorAll('.chip').forEach(function(b){
+  b.addEventListener('click',function(){
+    sortMode=b.dataset.sort;
+    document.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed',String(x===b))});
+    renderMarket();
+  });
+});
+
+/* ---------- окна ---------- */
+var dlg=$('#dlg');
+function openDialog(build){
+  var b=$('#dlg-body');b.textContent='';
+  var s1=el('span','screw'),s2=el('span','screw');s1.style.cssText='left:20px;top:20px';s2.style.cssText='right:20px;top:20px';
+  b.appendChild(s1);b.appendChild(s2);build(b);
+  if(dlg.showModal){if(!dlg.open)dlg.showModal()}else dlg.setAttribute('open','');
+}
+function closeBtn(){var cl=el('button','btn btn-dark','Закрыть');cl.type='button';cl.addEventListener('click',function(){dlg.close()});return cl}
+dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+
+function chartSvg(c){
+  var W=560,H=170,L=40,R=14,T=16,B=26,v=c.s,n=v.length;
+  var mn=Math.min.apply(null,v),mx=Math.max.apply(null,v);
+  function X(k){return L+k*(W-L-R)/(n-1)}
+  function Y(x){return T+(H-T-B)*(1-(x-mn)/((mx-mn)||1))}
+  var pts=v.map(function(x,k){return X(k).toFixed(1)+','+Y(x).toFixed(1)}).join(' ');
+  var area='M'+X(0)+','+(H-B)+' L'+pts.split(' ').join(' L')+' L'+X(n-1)+','+(H-B)+' Z';
+  var ns='http://www.w3.org/2000/svg',s=document.createElementNS(ns,'svg');
+  s.setAttribute('viewBox','0 0 '+W+' '+H);s.setAttribute('role','img');
+  s.setAttribute('aria-label','График цены '+c.name+' за 30 дней');
+  function mk(tag,attrs){var e=document.createElementNS(ns,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e}
+  [mn,(mn+mx)/2,mx].forEach(function(g){
+    s.appendChild(mk('line',{x1:L,x2:W-R,y1:Y(g),y2:Y(g),stroke:'rgba(60,35,15,.3)','stroke-dasharray':'4 4'}));
+    var t=mk('text',{x:L-6,y:Y(g)+4,'text-anchor':'end','font-size':'11',fill:'#3a2616','font-family':'monospace'});
+    t.textContent=g.toFixed(1).replace('.',',');s.appendChild(t);
+  });
+  s.appendChild(mk('path',{d:area,fill:c.color,'fill-opacity':'.55'}));
+  s.appendChild(mk('polyline',{points:pts,fill:'none',stroke:'#3a2616','stroke-width':'3','stroke-linejoin':'round','stroke-linecap':'round'}));
+  s.appendChild(mk('circle',{cx:X(n-1),cy:Y(v[n-1]),r:'5',fill:'#e0bd62',stroke:'#3a2616','stroke-width':'3'}));
+  [['30 дн. назад',L,'start'],['сегодня',W-R,'end']].forEach(function(a){
+    var t=mk('text',{x:a[1],y:H-7,'text-anchor':a[2],'font-size':'11',fill:'#3a2616','font-family':'monospace'});
+    t.textContent=a[0];s.appendChild(t);
+  });
+  return s;
+}
+function openCoin(c){
+  openDialog(function(b){
+    var head=el('div','dlg-head');head.appendChild(disc(c));
+    var hw=el('div');hw.appendChild(el('h2',null,c.name));hw.appendChild(el('p',null,c.tagline));
+    head.appendChild(hw);b.appendChild(head);
+    b.appendChild(el('p','about',c.about));
+    var st=el('dl','stats');
+    var bal=me&&me.balances[c.id]?me.balances[c.id]:0;
+    var items=[['Цена',c.price+' ★'],['За сутки',sgn(c.d1)],['За неделю',sgn(c.d7)],['За месяц',sgn(c.d30)],['Выпуск',c.supply],['Держателей',c.holders],['Запуск',c.launched]];
+    if(me)items.unshift(['У тебя',fmt(bal)+' '+c.ticker]);
+    items.forEach(function(p){var d=el('div');d.appendChild(el('dt',null,p[0]));d.appendChild(el('dd',null,p[1]));st.appendChild(d)});
+    b.appendChild(st);
+    var ch=el('div','chart');ch.appendChild(chartSvg(c));b.appendChild(ch);
+    var ul=el('ul','facts');c.facts.forEach(function(f){ul.appendChild(el('li',null,f))});b.appendChild(ul);
+    var acts=el('div','dlg-acts');acts.appendChild(buyBtn());acts.appendChild(closeBtn());b.appendChild(acts);
+  });
+}
+
+/* ---------- главная кошелька ---------- */
+var me=null,query='';
+
+function totals(){
+  var total=0,prev=0;
+  COINS.forEach(function(c){
+    var n=me.balances[c.id]||0;
+    total+=n*c.price;prev+=n*c.price/(1+c.d1/100);
+  });
+  return {total:total,diff:total-prev,pct:prev?(total-prev)/prev*100:0};
+}
+function holdingsOrder(){
+  return COINS.slice().sort(function(a,b){
+    var va=(me.balances[a.id]||0)*a.price,vb=(me.balances[b.id]||0)*b.price;
+    return vb-va||b.price-a.price;
+  });
+}
+function renderApp(){
+  var t=totals();
+  $('#avatar').textContent=me.email.charAt(0);
+  $('#menu-mail').textContent=me.email;
+  $('#menu-role').textContent=me.isAdmin?'Аккаунт админа':'Обычный аккаунт';
+  var bal=$('#bal');bal.textContent='';
+  bal.appendChild(document.createTextNode(fmt(Math.round(t.total))+' '));bal.appendChild(el('i',null,'★'));
+
+  var d=$('#delta');d.textContent='';
+  var cls=Math.abs(t.diff)<.5?'zero':(t.diff<0?'neg':'');
+  var sign=t.diff<0?'−':'+';
+  d.appendChild(el('span','amt '+cls,sign+fmt(Math.abs(Math.round(t.diff)))+' ★'));
+  d.appendChild(el('span','pct '+cls,(cls==='zero'?'':(t.diff<0?'↓ ':'↑ '))+f1(Math.abs(t.pct))+'%'));
+  d.appendChild(el('span','when','Сегодня'));
+
+  var a=$('#addr');a.textContent='';a.appendChild(el('em',null,me.address.slice(0,2)));a.appendChild(document.createTextNode(me.address.slice(2)));
+
+  var list=$('#holdings');list.textContent='';
+  var q=query.trim().toLowerCase(),shown=0;
+  holdingsOrder().forEach(function(c){
+    if(q&&c.name.toLowerCase().indexOf(q)<0&&c.ticker.toLowerCase().indexOf(q)<0)return;
+    var n=me.balances[c.id]||0;
+    var r=el('button','rowc'+(n?'':' dim'));r.type='button';
+    r.appendChild(disc(c,46));
+    var nm=el('div','nm');nm.appendChild(el('b',null,c.name));nm.appendChild(el('small',null,c.price+' ★ · '+sgn(c.d1)));
+    r.appendChild(nm);
+    var vl=el('div','vl');vl.appendChild(el('b',null,fmt(n*c.price)+' ★'));vl.appendChild(el('small',null,fmt(n)+' '+c.ticker));
+    r.appendChild(vl);
+    r.addEventListener('click',function(){openCoin(c)});
+    list.appendChild(r);shown++;
+  });
+  if(!shown)list.appendChild(el('div','empty','Ничего не нашлось. Попробуй другое название.'));
+
+  var tr=$('#trend');tr.textContent='';
+  COINS.slice().sort(function(x,y){return y.d1-x.d1}).slice(0,8).forEach(function(c){
+    var b=el('button','tr');b.type='button';
+    b.appendChild(disc(c,56));b.appendChild(el('b',null,c.ticker));
+    b.appendChild(el('span',c.d1>=0?'u':'d',(c.d1>=0?'↑ ':'↓ ')+f1(Math.abs(c.d1))+'%'));
+    b.addEventListener('click',function(){openCoin(c)});
+    tr.appendChild(b);
+  });
+
+  $('#admin-wrap').hidden=!me.isAdmin;
+
+  var h=$('#hist');h.textContent='';
+  if(!me.history.length)h.appendChild(el('div','empty','Операций пока нет. Всё впереди.'));
+  me.history.forEach(function(e){
+    var c=BYID[e.coin],c2=BYID[e.coin2],txt,val,cl='';
+    if(e.type==='in'){txt='Получено от '+e.peer;val='+'+fmt(e.amount)+' '+c.ticker;cl='p'}
+    else if(e.type==='issue'){txt='Выдача от админа';val='+'+fmt(e.amount)+' '+c.ticker;cl='p'}
+    else if(e.type==='out'){txt='Отправлено на '+e.peer;val='−'+fmt(e.amount)+' '+c.ticker;cl='m'}
+    else if(e.type==='issued'){txt='Выдано на '+e.peer;val=fmt(e.amount)+' '+c.ticker}
+    else{txt='Обмен '+c.ticker+' → '+(c2?c2.ticker:'');val=fmt(e.amount)+' → '+fmt(e.amount2)}
+    var r=el('div','hrow');
+    var left=el('span',null,txt);var right=el('b',cl,val);
+    r.appendChild(left);r.appendChild(right);h.appendChild(r);
+  });
+}
+function render(){
+  $('#guest').hidden=!!me;$('#app').hidden=!me;
+  if(me)renderApp();
+}
+function setMe(d){me=d;render()}
+
+/* шапка приложения */
+put('#ico-search',icon('search',20));
+put('#copy-top',icon('copy',22));put('#copy-addr',icon('copy',22));
+labelBtn('#a-topup','plus','Пополнить');labelBtn('#a-send','down','Вывести');labelBtn('#a-swap','swap','Обменять');
+$('#sc1').style.cssText='left:14px;top:12px';$('#sc2').style.cssText='right:14px;top:12px';
+$('#banner-disc').style.setProperty('--c',BYID.mytacoin.color);$('#banner-disc').style.setProperty('--s','64px');$('#banner-disc').textContent='MTC';
+
+$('#avatar').addEventListener('click',function(e){
+  e.stopPropagation();var m=$('#menu');m.hidden=!m.hidden;$('#avatar').setAttribute('aria-expanded',String(!m.hidden));
+});
+document.addEventListener('click',function(e){
+  var m=$('#menu');if(!m.hidden&&!m.contains(e.target)){m.hidden=true;$('#avatar').setAttribute('aria-expanded','false')}
+});
+$('#search').addEventListener('input',function(e){query=e.target.value;if(me)renderApp()});
+$('#banner').addEventListener('click',function(){openCoin(BYID.mytacoin)});
+
+function copyAddr(){
+  var done=function(){toast('Адрес скопирован')};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(me.address).then(done).catch(function(){toast('Выдели адрес и нажми Ctrl+C')})}
+  else toast('Выдели адрес и нажми Ctrl+C');
+}
+$('#copy-top').addEventListener('click',copyAddr);
+$('#copy-addr').addEventListener('click',copyAddr);
+$('#logout').addEventListener('click',function(){
+  api('/api/logout',{}).catch(function(){}).then(function(){
+    me=null;curEmail='';$('#email').value='';$('#menu').hidden=true;showStep('email');render();toast('Вы вышли');
+  });
+});
+
+/* формы-помощники */
+function field(label,input){var l=el('label','field');l.appendChild(el('span',null,label));l.appendChild(input);return l}
+function coinSelect(list,withBal){
+  var s=el('select','inset');
+  list.forEach(function(c){
+    var o=el('option',null,c.name+(withBal?' · '+fmt(me.balances[c.id]||0)+' '+c.ticker:''));o.value=c.id;s.appendChild(o);
+  });
+  return s;
+}
+function inputText(ph,mode){var i=el('input','inset');i.placeholder=ph;i.autocomplete='off';i.spellcheck=false;if(mode)i.inputMode=mode;return i}
+
+/* пополнить */
+$('#a-topup').addEventListener('click',function(){
+  openDialog(function(b){
+    var s=el('div','sheet');s.appendChild(el('h2',null,'Пополнить'));
+    var m1=el('a','method');m1.href=TG;m1.target='_blank';m1.rel='noopener noreferrer';
+    var i1=el('div','ic b','★');var t1=el('div');t1.appendChild(el('b',null,'Купить в Telegram'));t1.appendChild(el('small',null,'Без комиссии · ⚡ Мгновенно'));
+    m1.appendChild(i1);m1.appendChild(t1);s.appendChild(m1);
+    var m2=el('button','method');m2.type='button';
+    var i2=el('div','ic g','↓');var t2=el('div');t2.appendChild(el('b',null,'Перевод на твой адрес'));t2.appendChild(el('small',null,'Без комиссии · Нажми, чтобы скопировать'));
+    m2.appendChild(i2);m2.appendChild(t2);m2.addEventListener('click',copyAddr);s.appendChild(m2);
+    var m3=el('div','method');
+    var i3=el('div','ic v','M');var t3=el('div');var b3=el('b',null,'Выдача от Мелл-админа');b3.appendChild(el('em',null,'PRO'));
+    t3.appendChild(b3);t3.appendChild(el('small',null,'Скинь админу свой адрес, и он заносит монеты'));
+    m3.appendChild(i3);m3.appendChild(t3);s.appendChild(m3);
+    var ad=el('div','addrstrip');var w=el('div');w.appendChild(el('b',null,'Твой адрес'));
+    var aa=el('div','addr');aa.appendChild(el('em',null,me.address.slice(0,2)));aa.appendChild(document.createTextNode(me.address.slice(2)));
+    w.appendChild(aa);ad.appendChild(w);s.appendChild(ad);
+    var acts=el('div','dlg-acts');acts.style.marginTop='16px';acts.appendChild(closeBtn());s.appendChild(acts);
+    b.appendChild(s);
+  });
+});
+
+/* вывести (перевод) */
+$('#a-send').addEventListener('click',function(){
+  var held=COINS.filter(function(c){return (me.balances[c.id]||0)>0});
+  openDialog(function(b){
+    var s=el('div','sheet');s.appendChild(el('h2',null,'Вывести'));
+    if(!held.length){
+      s.appendChild(el('p','note','Пока выводить нечего. Попроси админа занести монет или жми «Купить».'));
+      var a0=el('div','dlg-acts');a0.appendChild(buyBtn());a0.appendChild(closeBtn());s.appendChild(a0);b.appendChild(s);return;
+    }
+    var f=el('form');f.noValidate=true;
+    var sel=coinSelect(held,true),to=inputText('Адрес получателя (UQ…)'),amt=inputText('Количество','numeric');
+    var row=el('div','inline');row.appendChild(amt);
+    var mx=el('button','btn btn-dark btn-sm','Всё');mx.type='button';
+    mx.addEventListener('click',function(){amt.value=String(me.balances[sel.value]||0)});row.appendChild(mx);
+    f.appendChild(field('Монета',sel));f.appendChild(field('Кому',to));
+    var l=el('label','field');l.appendChild(el('span',null,'Количество'));l.appendChild(row);f.appendChild(l);
+    var go=el('button','btn btn-wide','Отправить');go.type='submit';f.appendChild(go);
+    var msg=el('p','msg');msg.setAttribute('role','status');f.appendChild(msg);
+    f.addEventListener('submit',function(e){
+      e.preventDefault();var n=parseAmt(amt.value);
+      if(!(n>=1)){msg.textContent='Введите целое количество монет';return}
+      go.disabled=true;msg.textContent='';
+      api('/api/transfer',{to:to.value.trim(),coin:sel.value,amount:n}).then(function(d){setMe(d);dlg.close();toast('Отправлено')})
+        .catch(function(er){msg.textContent=er.message}).then(function(){go.disabled=false});
+    });
+    s.appendChild(f);
+    var acts=el('div','dlg-acts');acts.appendChild(closeBtn());s.appendChild(acts);
+    b.appendChild(s);
+  });
+});
+
+/* обменять */
+$('#a-swap').addEventListener('click',function(){
+  var held=COINS.filter(function(c){return (me.balances[c.id]||0)>0});
+  openDialog(function(b){
+    var s=el('div','sheet');s.appendChild(el('h2',null,'Обменять'));
+    if(!held.length){
+      s.appendChild(el('p','note','Обменивать пока нечего. Сначала заноси монеты в кошелёк.'));
+      var a0=el('div','dlg-acts');a0.appendChild(closeBtn());s.appendChild(a0);b.appendChild(s);return;
+    }
+    var f=el('form');f.noValidate=true;
+    var from=coinSelect(held,true),to=coinSelect(COINS,false),amt=inputText('Сколько отдаёшь','numeric');
+    to.value=COINS[1].id===from.value?COINS[0].id:COINS[1].id;
+    var pv=el('div','preview');
+    function calc(){
+      var n=parseAmt(amt.value),a=BYID[from.value],c=BYID[to.value];
+      if(from.value===to.value){pv.textContent='Выбери две разные монеты';return null}
+      if(!(n>=1)){pv.textContent='Курс: 1 '+a.ticker+' = '+f1(a.price/c.price)+' '+c.ticker;return null}
+      var got=Math.floor(n*a.price/c.price);
+      if(got<1){pv.textContent='Слишком мало для обмена';return null}
+      var spent=Math.ceil(got*c.price/a.price);
+      pv.textContent='Отдаёшь '+fmt(spent)+' '+a.ticker+' → получаешь '+fmt(got)+' '+c.ticker;
+      return {spent:spent,got:got};
+    }
+    [from,to,amt].forEach(function(x){x.addEventListener('input',calc)});calc();
+    f.appendChild(field('Отдаёшь',from));f.appendChild(field('Получаешь',to));f.appendChild(field('Количество',amt));f.appendChild(pv);
+    var go=el('button','btn btn-wide','Обменять');go.type='submit';f.appendChild(go);
+    var msg=el('p','msg');msg.setAttribute('role','status');f.appendChild(msg);
+    f.addEventListener('submit',function(e){
+      e.preventDefault();var n=parseAmt(amt.value);
+      if(!(n>=1)){msg.textContent='Введите целое количество монет';return}
+      go.disabled=true;msg.textContent='';
+      api('/api/exchange',{from:from.value,to:to.value,amount:n}).then(function(d){setMe(d);dlg.close();toast('Обмен выполнен')})
+        .catch(function(er){msg.textContent=er.message}).then(function(){go.disabled=false});
+    });
+    s.appendChild(f);
+    var acts=el('div','dlg-acts');acts.appendChild(closeBtn());s.appendChild(acts);
+    b.appendChild(s);
+  });
+});
+
+/* админ: выдать крипту на любой кошелёк */
+(function(){
+  var sel=$('#i-coin');COINS.forEach(function(c){var o=el('option',null,c.name+' ('+c.ticker+')');o.value=c.id;sel.appendChild(o)});
+  sel.value='mytacoin';
+  $('#f-issue').addEventListener('submit',function(e){
+    e.preventDefault();
+    var n=parseAmt($('#i-amt').value),msg=$('#i-msg'),btn=$('#i-btn');
+    if(!(n>=1)){msg.className='msg';msg.textContent='Введите целое количество монет';return}
+    btn.disabled=true;msg.className='msg';msg.textContent='';
+    api('/api/admin/issue',{to:$('#i-to').value.trim(),coin:sel.value,amount:n}).then(function(d){
+      setMe(d);$('#i-amt').value='';msg.className='msg ok';msg.textContent='Выдано: '+fmt(n)+' '+BYID[sel.value].ticker;toast('Монеты выданы');
+    }).catch(function(er){msg.className='msg';msg.textContent=er.message}).then(function(){btn.disabled=false});
+  });
+})();
+
+/* ---------- регистрация по коду ---------- */
+var fEmail=$('#f-email'),fCode=$('#f-code');
+var emailIn=$('#email'),boxes=Array.prototype.slice.call(document.querySelectorAll('#codebox input'));
+var curEmail='',cdTimer=null;
+
+function showStep(which){fEmail.hidden=which!=='email';fCode.hidden=which!=='code'}
+function setMsg(id,text,ok){var m=$(id);m.textContent=text||'';m.className='msg'+(ok?' ok':'')}
+function busy(btn,on,label){btn.disabled=on;if(label)btn.textContent=on?'Подождите…':label}
+function startCooldown(sec){
+  var b=$('#btn-resend');clearInterval(cdTimer);
+  function tick(){
+    if(sec<=0){clearInterval(cdTimer);b.disabled=false;b.textContent='Отправить снова';return}
+    b.disabled=true;b.textContent='Отправить снова ('+sec+' с)';sec--;
+  }
+  tick();cdTimer=setInterval(tick,1000);
+}
+function requestCode(isResend){
+  var btn=isResend?$('#btn-resend'):$('#btn-send');
+  var email=isResend?curEmail:emailIn.value.trim().toLowerCase();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){setMsg('#msg-email','Введите корректную почту');return Promise.resolve()}
+  setMsg('#msg-email','');setMsg('#msg-code','');
+  if(!isResend)busy(btn,true,'Получить код');
+  return api('/api/register/request',{email:email}).then(function(d){
+    curEmail=email;$('#sent-to').textContent=email;
+    showStep('code');boxes.forEach(function(b){b.value=''});boxes[0].focus();
+    startCooldown(d.cooldown||60);
+    if(isResend)setMsg('#msg-code','Новый код отправлен',true);
+  }).catch(function(e){
+    setMsg(isResend?'#msg-code':'#msg-email',e.message);
+    if(isResend&&e.data&&e.data.retryIn)startCooldown(e.data.retryIn);
+  }).then(function(){if(!isResend)busy(btn,false,'Получить код')});
+}
+fEmail.addEventListener('submit',function(e){e.preventDefault();requestCode(false)});
+$('#btn-resend').addEventListener('click',function(){requestCode(true)});
+$('#btn-back').addEventListener('click',function(){clearInterval(cdTimer);setMsg('#msg-code','');showStep('email');emailIn.focus()});
+
+boxes.forEach(function(b,i){
+  b.addEventListener('input',function(){
+    b.value=b.value.replace(/\D/g,'').slice(-1);
+    if(b.value&&i<boxes.length-1)boxes[i+1].focus();
+    if(boxes.every(function(x){return x.value}))submitCode();
+  });
+  b.addEventListener('keydown',function(e){
+    if(e.key==='Backspace'&&!b.value&&i>0){boxes[i-1].focus();boxes[i-1].value=''}
+    if(e.key==='ArrowLeft'&&i>0)boxes[i-1].focus();
+    if(e.key==='ArrowRight'&&i<boxes.length-1)boxes[i+1].focus();
+  });
+  b.addEventListener('paste',function(e){
+    var t=((e.clipboardData||window.clipboardData).getData('text')||'').replace(/\D/g,'').slice(0,6);
+    if(!t)return;e.preventDefault();
+    t.split('').forEach(function(ch,k){boxes[k].value=ch});
+    boxes[Math.min(t.length,5)].focus();
+    if(t.length===6)submitCode();
+  });
+  b.addEventListener('focus',function(){b.select()});
+});
+var verifying=false;
+function submitCode(){
+  if(verifying)return;
+  var code=boxes.map(function(b){return b.value}).join('');
+  if(!/^\d{6}$/.test(code)){setMsg('#msg-code','Введите все шесть цифр');return}
+  verifying=true;busy($('#btn-verify'),true,'Подтвердить');setMsg('#msg-code','');
+  api('/api/register/verify',{email:curEmail,code:code}).then(function(d){
+    clearInterval(cdTimer);setMe(d);
+    toast(d.isNew?'Кошелёк создан, го заносить':'С возвращением');
+    var w=$('#wallet');if(w&&w.scrollIntoView)w.scrollIntoView();
+  }).catch(function(e){
+    setMsg('#msg-code',e.message);boxes.forEach(function(b){b.value=''});boxes[0].focus();
+  }).then(function(){verifying=false;busy($('#btn-verify'),false,'Подтвердить')});
+}
+fCode.addEventListener('submit',function(e){e.preventDefault();submitCode()});
+
+renderMarket();
+api('/api/me').then(setMe).catch(function(){me=null;render()});
+})();
+</script>
+</body>
+</html>
